@@ -1,7 +1,7 @@
 #To deploy in the Tomcat web server
 pipeline {
     agent {
-        labels 'slave-1'
+        label 'slave-1'
     }
     tools {
         maven 'maven-3'
