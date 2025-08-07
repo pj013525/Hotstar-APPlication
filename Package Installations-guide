@@ -1,0 +1,132 @@
+Java 17 Installation
+-------------------------
+sudo apt update -y
+sudo apt install openjdk-17-jdk -y
+
+
+On the master node
+Jenkins Installation
+-----------------------
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins -y
+
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+
+
+Nexus Installation
+---------------------
+cd /opt
+sudo wget https://download.sonatype.com/nexus/3/nexus-unix-x86-64-3.79.0-09.tar.gz
+sudo tar -xvf nexus-unix-x86-64-3.79.0-09.tar.gz
+sudo mv nexus-3.79.0-09 nexus
+
+sudo adduser devops
+password: <Enter any password>
+
+visudo
+devops  ALL=(ALL:ALL) NOPASSWD: ALL
+
+sudo chown -R devops:devops /opt/nexus
+sudo chown -R devops:devops /opt/sonatype-work
+
+sudo nano /opt/nexus/bin/nexus.rc
+run_as_user="devops"
+
+sudo nano /opt/nexus/bin/nexus.vmoptions
+Remove the first 15 lines and replace them with the following lines 
+-Xms2048m
+-Xmx2048m
+-XX:MaxDirectMemorySize=2048m
+
+-XX:LogFile=./sonatype-work/nexus3/log/jvm.log
+-XX:-OmitStackTraceInFastThrow
+-Djava.net.preferIPv4Stack=true
+-Dkaraf.home=.
+-Dkaraf.base=.
+-Dkaraf.etc=etc/karaf
+-Djava.util.logging.config.file=/etc/karaf/java.util.logging.properties
+-Dkaraf.data=./sonatype-work/nexus3
+-Dkaraf.log=./sonatype-work/nexus3/log
+-Djava.io.tmpdir=./sonatype-work/nexus3/tmp
+
+sudo nano /etc/systemd/system/nexus.service
+[Unit]
+Description=nexus service
+After=network.target
+
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=devops
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target 
+
+sudo systemctl start nexus
+sudo systemctl enable nexus 
+sudo systemctl status nexus 
+
+SonarQube Installation
+------------------------
+ cd /opt
+
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.6.50800.zip
+sudo unzip sonarqube-8.9.6.50800.zip
+sudo mv sonarqube-8.9.6.50800 sonar 
+chown -R devops:devops sonar
+chmod -R 777 sonar
+
+sudo vim /opt/sonar/conf/sonar.properties
+Remove # for the line
+sonar.web.host=0.0.0.0
+sonar.web.port=9000
+
+sudo vim /etc/systemd/system/sonar.service
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/sonar/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonar/bin/linux-x86-64/sonar.sh stop
+User=devops
+Group=devops
+Restart=on-failure
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl enable sonar
+sudo systemctl start sonar
+sudo systemctl status sonar
+
+
+
+
+On slave-Node
+-----------------
+sudo apt update -y
+apt install git openjdk-17-jdk maven -y
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.108/bin/apache-tomcat-9.0.108.tar.gz
+tar -xvf apache-tomcat-9.0.108.tar.gz
+cd apache-tomcat-9.0.108
+Make necessary settings in /conf/tomcat.xml    /webapps/manager/METADATA.F/context.xml      /bin  ./startup.sh
+                        
+
+
+
+
+
