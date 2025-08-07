@@ -7,6 +7,10 @@ pipeline {
         maven 'maven-3'
         jdk 'jdk-17'
     }
+    environment{
+      SCANNER_HOME = tool 'sonar-scanner'
+    }
+
     stages {
         stage('Cleaning the Workspace') {
             steps {
@@ -18,30 +22,31 @@ pipeline {
                 git 'https://github.com/pj013525/Hotstar-Application.git'
             }
         }
-         stage('Compile the code') {
+        stage('Compile the code') {
             steps {
                 sh 'mvn compile'
             }
         }
-         stage('Test the code') {
+        stage('Test the code') {
             steps {
                 sh 'mvn test'
             }
         }
-         stage('Code Quality Analysis') {
+        stage('Code Quality Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh'''
-                    sonar-scanner/bin/sonar-scanner \
+                  sh '''
+                    ${SCANNER_HOME}/bin/sonar-scanner \
                     -Dsonar.projectName=Hotstar \
-                    -Dsonar.projectKey=Hotstar-app\
+                    -Dsonar.projectKey=Hotstar-app \
                     -Dsonar.sources=. \
-                    -Dsonar.projectVersion=1.0
-                    '''
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.java.binaries=target/classes
+                  '''
                 }
             }
         }
-         stage('package the code') {
+        stage('package the code') {
             steps {
                 sh 'mvn clean package'
             }
