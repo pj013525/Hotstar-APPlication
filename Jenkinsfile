@@ -1,3 +1,4 @@
+#To deploy in the Tomcat web server
 pipeline {
     agent {
         labels 'slave-1'
