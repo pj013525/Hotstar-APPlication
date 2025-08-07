@@ -50,7 +50,7 @@ Login to both instances using **public IP** and **.pem key**.
 
 ### ✅ Step 3: Install Required Tools
 
-- **Master Node:** Java 17, Jenkins, Nexus, SonarQube  
+- **Master Node:** Java 17, Jenkins, Nexus, SonarQube  # For installation guidance go to Package installtions file in this repo 
 - **Slave Node:** Java 17, Git, Maven, Tomcat
 
 ![Step 3](https://github.com/user-attachments/assets/3c50f866-df6a-4f23-aa24-7c041c40f460)
