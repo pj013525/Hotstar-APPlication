@@ -18,7 +18,7 @@ pipeline {
                 sh 'mvn package'
             }
         }
-        stage('Deploying To Tomcat') {
+        stage('Building the docker image') {
             steps {
                 sh 'docker build -t pj013525/tomcat-image:v1 .'
                 sh 'docker images'
